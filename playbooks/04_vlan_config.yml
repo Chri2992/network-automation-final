@@ -1,0 +1,65 @@
+# 04_vlan_config.yml - Create VLANs and configure trunk ports on switch, plus router subinterfaces
+---
+- name: VLAN and trunk configuration on switch
+  hosts: switches
+  gather_facts: no
+  become: yes
+  vars:
+    # Define VLAN IDs and names
+    vlan_list:
+      - { id: 20, name: Management }
+      - { id: 30, name: Data }
+      - { id: 40, name: Voice }
+    # Define trunk interfaces to configure
+    trunk_ports:
+      - FastEthernet0/1
+      - FastEthernet0/2
+  tasks:
+    - name: Ensure VLANs 20, 30, 40 are present on Switch1
+      ios_vlan:
+        vlan_id: "{{ item.id }}"
+        name: "{{ item.name }}"
+        state: present
+      loop: "{{ vlan_list }}"
+    - name: Configure trunk settings on interfaces F0/1 and F0/2
+      ios_config:
+        parents: "interface {{ item }}"
+        lines:
+          - switchport trunk encapsulation dot1q
+          - switchport mode trunk
+          - switchport trunk native vlan 20        # Use VLAN 20 as native (untagged)
+          - switchport trunk allowed vlan 20,30,40 # Allow VLANs 20,30,40 on trunk
+          - no shutdown
+      loop: "{{ trunk_ports }}"
+
+- name: VLAN subinterface configuration on routers
+  hosts: routers
+  gather_facts: no
+  become: yes
+  tasks:
+    - name: Configure Router1 subinterfaces for VLANs 20, 30, 40
+      ios_config:
+        lines:
+          - interface GigabitEthernet0/0/0.20
+          - encapsulation dot1Q 20 native
+          - ip address 10.0.12.1 255.255.255.0     # VLAN 20 interface IP (Management)
+          - interface GigabitEthernet0/0/0.30
+          - encapsulation dot1Q 30
+          - ip address 10.0.13.1 255.255.255.0     # VLAN 30 interface IP (Data)
+          - interface GigabitEthernet0/0/0.40
+          - encapsulation dot1Q 40
+          - ip address 10.0.14.1 255.255.255.0     # VLAN 40 interface IP (Voice)
+      when: inventory_hostname == "Router1"
+    - name: Configure Router2 subinterfaces for VLANs 20, 30, 40
+      ios_config:
+        lines:
+          - interface GigabitEthernet0/0/0.20
+          - encapsulation dot1Q 20 native
+          - ip address 10.0.12.2 255.255.255.0     # VLAN 20 interface IP (Management)
+          - interface GigabitEthernet0/0/0.30
+          - encapsulation dot1Q 30
+          - ip address 10.0.13.2 255.255.255.0     # VLAN 30 interface IP (Data)
+          - interface GigabitEthernet0/0/0.40
+          - encapsulation dot1Q 40
+          - ip address 10.0.14.2 255.255.255.0     # VLAN 40 interface IP (Voice)
+      when: inventory_hostname == "Router2"
