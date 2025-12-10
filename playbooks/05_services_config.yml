@@ -1,0 +1,15 @@
+# 05_services_config.yml - Configure NTP server and logging on all devices
+---
+- name: Configure NTP and logging on all devices
+  hosts: all
+  gather_facts: no
+  become: yes
+  tasks:
+    - name: Configure NTP server (time.google.com)
+      ios_config:
+        lines:
+          - ntp server 216.239.35.0       # Use Google NTP server
+    - name: Increase logging buffer size
+      ios_config:
+        lines:
+          - logging buffered 16384       # Set logging buffer to 16384 bytes
