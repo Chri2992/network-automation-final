@@ -34,7 +34,7 @@
       ios_config:
         lines:
           - interface GigabitEthernet0/0/0
-          -  description Link to S1 (VLAN 1 mgmt)
+          - description Link to S1 (VLAN 1 mgmt)
 
     # ----------------------
     # Router2 interface descriptions
@@ -44,7 +44,7 @@
       ios_config:
         lines:
           - interface GigabitEthernet0/0/0
-          -  description Link to S1 (VLAN 1 mgmt)
+          - description Link to S1 (VLAN 1 mgmt)
 
     # ----------------------
     # Switch1 interface descriptions
@@ -54,8 +54,8 @@
       ios_config:
         lines:
           - interface FastEthernet0/1
-          -  description Link to Router1 (VLAN 1)
+          - description Link to Router1 (VLAN 1)
           - interface FastEthernet0/2
-          -  description Link to Router2 (VLAN 1)
+          - description Link to Router2 (VLAN 1)
           - interface FastEthernet0/24
-          -  description Management PC (VLAN 1)
+          - description Management PC (VLAN 1)
